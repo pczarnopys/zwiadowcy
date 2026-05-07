@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Zwiadowca — Nawigacja</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0e1a0e;
+      color: #c8a96e;
+      font-family: Georgia, 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 16px 32px;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .guild-mark {
+      font-size: 28px;
+      letter-spacing: 6px;
+      color: #8aab6a;
+      opacity: 0.7;
+    }
+    .title {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #7a8a6a;
+      margin-top: 4px;
+    }
+
+    /* ── Station name ── */
+    .station-name {
+      font-size: 20px;
+      letter-spacing: 2px;
+      text-align: center;
+      color: #d4b47a;
+      margin-bottom: 6px;
+      min-height: 28px;
+    }
+
+    /* ── Distance badge ── */
+    .distance-badge {
+      background: rgba(138, 171, 106, 0.12);
+      border: 1px solid rgba(138, 171, 106, 0.3);
+      border-radius: 20px;
+      padding: 6px 20px;
+      font-size: 26px;
+      font-weight: bold;
+      color: #a8d080;
+      text-align: center;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      min-width: 160px;
+    }
+    .distance-badge span {
+      font-size: 13px;
+      color: #7a8a6a;
+      font-weight: normal;
+      letter-spacing: 2px;
+    }
+
+    /* ── Compass ring ── */
+    .compass-wrapper {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin: 0 auto 24px;
+    }
+
+    .compass-ring {
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      border: 2px solid rgba(138, 171, 106, 0.25);
+      background: radial-gradient(circle at 50% 50%,
+        rgba(14, 30, 14, 0.95) 0%,
+        rgba(20, 40, 20, 0.9) 60%,
+        rgba(14, 30, 14, 0.95) 100%);
+      box-shadow:
+        0 0 40px rgba(0,0,0,0.8),
+        inset 0 0 30px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(80,100,60,0.2);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cardinal markers */
+    .cardinal {
+      position: absolute;
+      font-size: 11px;
+      color: rgba(138, 171, 106, 0.5);
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .cardinal.n { top: 10px; left: 50%; transform: translateX(-50%); }
+    .cardinal.s { bottom: 10px; left: 50%; transform: translateX(-50%); }
+    .cardinal.e { right: 12px; top: 50%; transform: translateY(-50%); }
+    .cardinal.w { left: 12px; top: 50%; transform: translateY(-50%); }
+
+    /* Tick marks */
+    .compass-ring::before {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      border: 1px dashed rgba(138, 171, 106, 0.15);
+    }
+
+    /* Arrow container — rotates */
+    .arrow-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease-out;
+    }
+
+    .arrow {
+      width: 0;
+      height: 0;
+      position: relative;
+    }
+
+    /* Arrow SVG */
+    .arrow-svg {
+      width: 80px;
+      height: 140px;
+      filter: drop-shadow(0 0 8px rgba(168, 208, 128, 0.6));
+    }
+
+    /* Center dot */
+    .center-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #8aab6a;
+      box-shadow: 0 0 10px rgba(138, 171, 106, 0.8);
+      z-index: 10;
+    }
+
+    /* ── Status message ── */
+    .status {
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-align: center;
+      color: #7a8a6a;
+      min-height: 20px;
+      margin-bottom: 16px;
+    }
+    .status.ok { color: #8aab6a; }
+    .status.warn { color: #c8804a; }
+
+    /* ── Arrived ── */
+    .arrived-banner {
+      display: none;
+      background: rgba(138, 171, 106, 0.15);
+      border: 1px solid rgba(138, 171, 106, 0.5);
+      border-radius: 8px;
+      padding: 16px 24px;
+      text-align: center;
+      animation: pulse 1.5s infinite;
+    }
+    .arrived-banner h2 {
+      font-size: 22px;
+      color: #a8d080;
+      letter-spacing: 3px;
+      margin-bottom: 6px;
+    }
+    .arrived-banner p {
+      font-size: 13px;
+      color: #8aab6a;
+      letter-spacing: 1px;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(138,171,106,0.3); }
+      50% { box-shadow: 0 0 25px rgba(138,171,106,0.7); }
+    }
+
+    /* ── Permission button ── */
+    .perm-btn {
+      background: rgba(138, 171, 106, 0.2);
+      border: 1px solid rgba(138, 171, 106, 0.5);
+      color: #a8d080;
+      font-family: Georgia, serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      padding: 12px 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 16px;
+      display: none;
+    }
+    .perm-btn:active { background: rgba(138, 171, 106, 0.35); }
+
+    /* ── Footer note ── */
+    .footer-note {
+      margin-top: 20px;
+      font-size: 11px;
+      color: rgba(120, 140, 100, 0.4);
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* ── No-params screen ── */
+    .setup-screen {
+      display: none;
+      text-align: center;
+      padding: 32px 16px;
+    }
+    .setup-screen h2 {
+      color: #8aab6a;
+      font-size: 18px;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+    .setup-screen p {
+      color: #7a8a6a;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .setup-screen code {
+      background: rgba(138,171,106,0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #a8d080;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="guild-mark">⌖ ✦ ⌖</div>
+    <div class="title">Gildia Zwiadowców Araluenu</div>
+  </div>
+
+  <!-- Main navigation UI -->
+  <div id="nav-ui">
+    <div class="station-name" id="station-name">— — —</div>
+
+    <div class="distance-badge" id="dist-badge">
+      — — <span>kroków</span>
+    </div>
+
+    <div class="compass-wrapper">
+      <div class="compass-ring">
+        <span class="cardinal n">N</span>
+        <span class="cardinal s">S</span>
+        <span class="cardinal e">E</span>
+        <span class="cardinal w">W</span>
+
+        <div class="arrow-container" id="arrow-container">
+          <svg class="arrow-svg" viewBox="0 0 80 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Tail (south half) -->
+            <polygon points="40,80 30,140 40,120 50,140"
+              fill="rgba(80,100,60,0.5)" stroke="rgba(80,100,60,0.8)" stroke-width="1"/>
+            <!-- Shaft -->
+            <rect x="37" y="30" width="6" height="90" fill="rgba(138,171,106,0.6)" rx="2"/>
+            <!-- Head (north — points up) -->
+            <polygon points="40,0 20,55 40,42 60,55"
+              fill="#a8d080" stroke="#6a9040" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="center-dot"></div>
+      </div>
+    </div>
+
+    <div class="status" id="status">Oczekiwanie na lokalizację…</div>
+
+    <div class="arrived-banner" id="arrived-banner">
+      <h2>✦ DOTARŁAŚ ✦</h2>
+      <p>Cel osiągnięty. Szukaj kapsułki.</p>
+    </div>
+
+    <button class="perm-btn" id="perm-btn" onclick="requestOrientationPermission()">
+      WŁĄCZ KOMPAS
+    </button>
+  </div>
+
+  <!-- Shown only when URL has no coords -->
+  <div class="setup-screen" id="setup-screen">
+    <h2>Konfiguracja nawigacji</h2>
+    <p>
+      Dodaj współrzędne do adresu URL:<br><br>
+      <code>kompas.html?lat=51.1234&amp;lng=17.5678&amp;name=Stacja+Run</code><br><br>
+      Parametry:<br>
+      <code>lat</code> — szerokość geograficzna<br>
+      <code>lng</code> — długość geograficzna<br>
+      <code>name</code> — nazwa stacji (opcjonalna)
+    </p>
+  </div>
+
+  <div class="footer-note" id="footer-note"></div>
+
+<script>
+// ── Parse URL params ──────────────────────────────────────────────
+const params = new URLSearchParams(window.location.search);
+const targetLat = parseFloat(params.get('lat'));
+const targetLng = parseFloat(params.get('lng'));
+const stationName = params.get('name') || '';
+
+const hasCoords = !isNaN(targetLat) && !isNaN(targetLng);
+
+if (!hasCoords) {
+  document.getElementById('nav-ui').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'block';
+} else {
+  if (stationName) {
+    document.getElementById('station-name').textContent = decodeURIComponent(stationName);
+  }
+  init();
+}
+
+// ── State ─────────────────────────────────────────────────────────
+let currentLat = null;
+let currentLng = null;
+let compassHeading = null; // degrees from true north, device is pointing
+let orientationActive = false;
+
+// ── Haversine distance (meters) ───────────────────────────────────
+function getDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const p1 = lat1 * Math.PI / 180, p2 = lat2 * Math.PI / 180;
+  const dp = (lat2 - lat1) * Math.PI / 180;
+  const dl = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dp/2)**2 + Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ── Bearing (degrees, 0=N, clockwise) ────────────────────────────
+function getBearing(lat1, lng1, lat2, lng2) {
+  const p1 = lat1 * Math.PI / 180, p2 = lat2 * Math.PI / 180;
+  const dl = (lng2 - lng1) * Math.PI / 180;
+  const y = Math.sin(dl) * Math.cos(p2);
+  const x = Math.cos(p1)*Math.sin(p2) - Math.sin(p1)*Math.cos(p2)*Math.cos(dl);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+// ── Update UI ────────────────────────────────────────────────────
+function updateDisplay() {
+  if (currentLat === null) return;
+
+  const dist = getDistance(currentLat, currentLng, targetLat, targetLng);
+  const bearing = getBearing(currentLat, currentLng, targetLat, targetLng);
+
+  // Distance display
+  const badge = document.getElementById('dist-badge');
+  if (dist < 1000) {
+    const steps = Math.round(dist / 0.75); // ~75cm per step
+    badge.innerHTML = `${Math.round(dist)} <span>metrów</span><br><small style="font-size:14px;color:#7a8a6a">(~${steps} kroków)</small>`;
+  } else {
+    badge.innerHTML = `${(dist/1000).toFixed(2)} <span>km</span>`;
+  }
+
+  // Arrived check
+  if (dist < 15) {
+    document.getElementById('arrived-banner').style.display = 'block';
+    document.getElementById('arrow-container').style.opacity = '0.3';
+    document.getElementById('status').textContent = '';
+    return;
+  }
+
+  document.getElementById('arrived-banner').style.display = 'none';
+  document.getElementById('arrow-container').style.opacity = '1';
+
+  // Arrow rotation
+  if (compassHeading !== null) {
+    const arrowRotation = (bearing - compassHeading + 360) % 360;
+    document.getElementById('arrow-container').style.transform =
+      `rotate(${arrowRotation}deg)`;
+    setStatus('ok', 'Kompas aktywny');
+  } else {
+    setStatus('warn', 'Trzymaj telefon poziomo i włącz kompas');
+  }
+
+  // Footer: bearing degrees for nerds
+  document.getElementById('footer-note').textContent =
+    `kierunek: ${Math.round(bearing)}° | ${dist < 100 ? 'blisko!' : ''}`;
+}
+
+function setStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+}
+
+// ── Geolocation ──────────────────────────────────────────────────
+function init() {
+  if (!navigator.geolocation) {
+    setStatus('warn', 'Brak obsługi GPS w tej przeglądarce');
+    return;
+  }
+  navigator.geolocation.watchPosition(
+    pos => {
+      currentLat = pos.coords.latitude;
+      currentLng = pos.coords.longitude;
+      updateDisplay();
+    },
+    err => {
+      setStatus('warn', 'Błąd GPS — zezwól na dostęp do lokalizacji');
+    },
+    { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+  );
+
+  setupOrientation();
+}
+
+// ── Device orientation (compass) ─────────────────────────────────
+function setupOrientation() {
+  // iOS 13+ requires permission
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    document.getElementById('perm-btn').style.display = 'inline-block';
+  } else {
+    startOrientation();
+  }
+}
+
+function requestOrientationPermission() {
+  DeviceOrientationEvent.requestPermission().then(state => {
+    if (state === 'granted') {
+      document.getElementById('perm-btn').style.display = 'none';
+      startOrientation();
+    } else {
+      setStatus('warn', 'Brak zgody na kompas — obróć telefon ręcznie');
+    }
+  }).catch(() => startOrientation());
+}
+
+function startOrientation() {
+  // Try absolute first (Android)
+  let gotAbsolute = false;
+
+  window.addEventListener('deviceorientationabsolute', e => {
+    if (e.alpha === null) return;
+    gotAbsolute = true;
+    orientationActive = true;
+    // On Android absolute: alpha=0 means device points to magnetic north
+    compassHeading = (360 - e.alpha) % 360;
+    updateDisplay();
+  }, true);
+
+  // iOS: webkitCompassHeading (fallback)
+  window.addEventListener('deviceorientation', e => {
+    if (gotAbsolute) return; // Android already handled
+    if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) {
+      orientationActive = true;
+      compassHeading = e.webkitCompassHeading;
+      updateDisplay();
+    }
+  }, true);
+
+  // If nothing after 3s, show manual hint
+  setTimeout(() => {
+    if (!orientationActive) {
+      setStatus('warn', 'Kompas niedostępny — użyj kierunków N/S/E/W');
+    }
+  }, 3000);
+}
+</script>
+</body>
+</html>
