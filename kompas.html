@@ -192,21 +192,32 @@
       50% { box-shadow: 0 0 25px rgba(138,171,106,0.7); }
     }
 
-    /* ── Permission button ── */
-    .perm-btn {
-      background: rgba(138, 171, 106, 0.2);
-      border: 1px solid rgba(138, 171, 106, 0.5);
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .perm-btn, .flip-btn {
+      background: rgba(138, 171, 106, 0.15);
+      border: 1px solid rgba(138, 171, 106, 0.4);
       color: #a8d080;
       font-family: Georgia, serif;
-      font-size: 15px;
+      font-size: 13px;
       letter-spacing: 2px;
-      padding: 12px 28px;
+      padding: 10px 22px;
       border-radius: 4px;
       cursor: pointer;
-      margin-top: 16px;
-      display: none;
     }
-    .perm-btn:active { background: rgba(138, 171, 106, 0.35); }
+    .perm-btn { display: none; }
+    .perm-btn:active, .flip-btn:active { background: rgba(138, 171, 106, 0.35); }
+    .flip-btn.active {
+      background: rgba(200, 128, 74, 0.25);
+      border-color: rgba(200, 128, 74, 0.6);
+      color: #c8804a;
+    }
 
     /* ── Footer note ── */
     .footer-note {
@@ -289,9 +300,10 @@
       <p>Cel osiągnięty. Szukaj kapsułki.</p>
     </div>
 
-    <button class="perm-btn" id="perm-btn" onclick="requestOrientationPermission()">
-      WŁĄCZ KOMPAS
-    </button>
+    <div class="btn-row">
+      <button class="perm-btn" id="perm-btn" onclick="requestOrientationPermission()">WŁĄCZ KOMPAS</button>
+      <button class="flip-btn" id="flip-btn" onclick="toggleFlip()">↺ ODWRÓĆ</button>
+    </div>
   </div>
 
   <!-- Shown only when URL has no coords -->
@@ -333,6 +345,15 @@ let currentLat = null;
 let currentLng = null;
 let compassHeading = null; // degrees from true north, device is pointing
 let orientationActive = false;
+let flipped = false;
+
+function toggleFlip() {
+  flipped = !flipped;
+  const btn = document.getElementById('flip-btn');
+  btn.classList.toggle('active', flipped);
+  btn.textContent = flipped ? '↺ ODWRÓCONO' : '↺ ODWRÓĆ';
+  updateDisplay();
+}
 
 // ── Haversine distance (meters) ───────────────────────────────────
 function getDistance(lat1, lng1, lat2, lng2) {
@@ -382,10 +403,11 @@ function updateDisplay() {
 
   // Arrow rotation
   if (compassHeading !== null) {
-    const arrowRotation = (bearing - compassHeading + 360) % 360;
+    const heading = flipped ? (compassHeading + 180) % 360 : compassHeading;
+    const arrowRotation = (bearing - heading + 360) % 360;
     document.getElementById('arrow-container').style.transform =
       `rotate(${arrowRotation}deg)`;
-    setStatus('ok', 'Kompas aktywny');
+    setStatus('ok', flipped ? 'Kompas aktywny (odwrócony)' : 'Kompas aktywny');
   } else {
     setStatus('warn', 'Trzymaj telefon poziomo i włącz kompas');
   }
