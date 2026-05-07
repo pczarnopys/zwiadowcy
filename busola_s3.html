@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rozkaz Marszu · Stacja 3 · Gildia Zwiadowców</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #0e1a0e;
+    color: #2a1a0a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100vh;
+    padding: 16px 12px 32px;
+  }
+
+  .page {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guild-mark {
+    display: block;
+    height: 40px;
+    width: auto;
+    margin: 0 auto 14px;
+  }
+
+  .title-main {
+    font-family: Cinzel, Georgia, serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 4px;
+    text-align: center;
+    color: #8a6a20;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .title-sub {
+    font-family: Georgia, serif;
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    text-align: center;
+    color: #5a4a3a;
+    opacity: 0.75;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+
+  .compass-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .compass-svg {
+    width: 180px;
+    height: 180px;
+    display: block;
+  }
+
+  .heading-readout {
+    font-family: Cinzel, Georgia, serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: #c8a46a;
+    margin-top: 10px;
+    min-height: 24px;
+  }
+
+  .compass-hint {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    color: #7a6a5a;
+    text-align: center;
+    margin-top: 8px;
+    max-width: 280px;
+    display: none;
+  }
+  .compass-hint.visible {
+    display: block;
+  }
+
+  .activate-wrap {
+    text-align: center;
+    margin-top: 12px;
+  }
+  .activate-wrap.hidden {
+    display: none;
+  }
+
+  .btn-stamp {
+    font-family: Cinzel, Georgia, serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e8d8b8;
+    background-color: #2a1a0a;
+    border: 2px solid #5a4a2a;
+    padding: 12px 22px;
+    cursor: pointer;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+      0 3px 0 #1a0a00;
+  }
+  .btn-stamp:active {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 1px 0 #1a0a00;
+  }
+
+  .sep {
+    height: 8px;
+    margin: 6px auto 22px;
+    max-width: 240px;
+  }
+
+  /* Parchment order card */
+  .parchment {
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #c8a46a;
+    border: 1px solid #5a4a28;
+    border-radius: 3px;
+    clip-path: polygon(
+      1% 0.5%, 7% 0%, 22% 0.8%, 38% 0.2%, 55% 0.9%, 72% 0.3%, 88% 0.6%, 99% 1.5%,
+      100% 8%, 99% 35%, 100% 65%, 99% 94%,
+      92% 100%, 70% 99.5%, 45% 100%, 28% 99.8%, 8% 100%, 1% 99%,
+      0% 88%, 0.8% 50%, 0% 14%
+    );
+    box-shadow:
+      inset 0 0 0 8px rgba(90, 70, 30, 0.12),
+      inset 0 0 42px rgba(60, 40, 15, 0.35),
+      0 6px 0 #2d2010,
+      0 8px 24px rgba(0, 0, 0, 0.5);
+    padding: 26px 20px 28px;
+  }
+
+  .parchment h2 {
+    font-family: Cinzel, Georgia, serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-align: center;
+    color: #3a5a2a;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #8a6a20;
+    padding-bottom: 10px;
+  }
+
+  .steps {
+    list-style: none;
+  }
+
+  .step {
+    border: 2px solid transparent;
+    border-radius: 2px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    opacity: 0.4;
+    font-size: 14px;
+  }
+  .step:last-child {
+    margin-bottom: 0;
+  }
+  .step.active {
+    opacity: 1;
+    border-color: #3a5a2a;
+    font-size: 17px;
+    box-shadow:
+      inset 0 0 0 1px rgba(138, 106, 32, 0.45),
+      0 0 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .step-num {
+    font-family: Cinzel, Georgia, serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #5a4420;
+    margin-bottom: 6px;
+  }
+  .step.active .step-num {
+    font-size: 12px;
+    color: #2a3818;
+  }
+
+  .controls {
+    max-width: 420px;
+    margin: 22px auto 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .btn-nav {
+    flex: 1;
+    font-family: Cinzel, Georgia, serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #2a1a0a;
+    background-color: #a88a54;
+    border: 2px solid #6a5530;
+    padding: 12px 8px;
+    cursor: pointer;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 248, 220, 0.35),
+      0 2px 0 #4a3820,
+      0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  .btn-nav:active {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 248, 220, 0.25),
+      0 1px 0 #4a3820;
+  }
+  .btn-nav:disabled {
+    opacity: 0.35;
+    cursor: default;
+    transform: none;
+  }
+
+  .progress {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 10px;
+    color: #5a6648;
+    margin-top: 20px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Fullscreen overlay */
+  .finish-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background-color: #0e1a0e;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+    cursor: pointer;
+  }
+  .finish-overlay.open {
+    display: flex;
+  }
+
+  .finish-overlay h3 {
+    font-family: Cinzel, Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(26px, 8vw, 40px);
+    letter-spacing: 6px;
+    color: #8a6a20;
+    margin-bottom: 20px;
+  }
+
+  .finish-overlay p.mid {
+    font-family: Cinzel, Georgia, serif;
+    font-size: clamp(14px, 4vw, 18px);
+    letter-spacing: 1px;
+    color: #b89d50;
+    max-width: 320px;
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  .finish-overlay p.small {
+    font-family: Georgia, serif;
+    font-size: 13px;
+    color: #6a7448;
+    font-style: italic;
+  }
+
+  @media (min-width: 400px) {
+    .title-main {
+      font-size: 28px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <!-- 1: Gild mark 40px -->
+    <svg class="guild-mark" viewBox="0 0 120 40" aria-hidden="true" role="img">
+      <circle cx="60" cy="20" r="18" fill="none" stroke="#8a6a20" stroke-width="1.2" />
+      <defs>
+        <path id="arcTop" d="M 18 22 A 42 42 0 0 1 102 22" fill="none" />
+      </defs>
+      <text fill="#7a6a45" font-family="Cinzel, Georgia, serif" font-size="5.2" letter-spacing="0.12em">
+        <textPath href="#arcTop" startOffset="50%" text-anchor="middle">GILDIA ZWIADOWCÓW ARALUENU</textPath>
+      </text>
+      <path d="M60 8 L65 16 L58 15 L60 20 L62 15 L55 16 Z" fill="#8a6a20" />
+      <path d="M60 20 L68 28 L60 25 L52 28 Z" fill="#5a4a30" />
+    </svg>
+
+    <h1 class="title-main">Rozkaz Marszu</h1>
+    <p class="title-sub">Gildia Zwiadowców Araluenu</p>
+
+    <div class="compass-wrap">
+      <svg class="compass-svg" viewBox="0 0 180 180" aria-label="Busola" role="img">
+        <circle cx="90" cy="90" r="88" fill="#1a2e1a" stroke="#5a7a3a" stroke-width="3" />
+        <circle cx="90" cy="90" r="76" fill="none" stroke="#3a5a2a" stroke-width="1" opacity="0.5" />
+
+        <g font-family="Cinzel, Georgia, serif" font-size="11" font-weight="600" fill="#9ab08a" text-anchor="middle">
+          <text x="90" y="16">N</text>
+          <text x="164" y="96">E</text>
+          <text x="90" y="172">S</text>
+          <text x="16" y="96">W</text>
+        </g>
+
+        <g id="needle" style="transform-origin: 90px 90px; transition: transform 0.3s ease-out;">
+          <!-- Red tip = north pole of needle (+Y upward in SVG points to real north via rotation) -->
+          <polygon points="90,88 93,54 87,54" fill="#a01818" stroke="#701010" stroke-width="0.5" />
+          <polygon points="90,92 88,138 92,138" fill="#757575" stroke="#555" stroke-width="0.5" />
+          <circle cx="90" cy="90" r="4" fill="#c8c8c8" stroke="#555" stroke-width="0.75" />
+        </g>
+
+        <!-- subtle inner ring ticks -->
+        <g stroke="#4a6640" stroke-width="1" opacity="0.35">
+          <line x1="90" y1="8" x2="90" y2="14" />
+          <line x1="172" y1="90" x2="166" y2="90" />
+          <line x1="90" y1="172" x2="90" y2="166" />
+          <line x1="8" y1="90" x2="14" y2="90" />
+        </g>
+      </svg>
+
+      <div class="heading-readout" id="headingReadout" aria-live="polite">---°</div>
+
+      <div class="compass-hint" id="horizontalHint">Trzymaj telefon poziomo</div>
+
+      <div class="activate-wrap hidden" id="activateWrap">
+        <button type="button" class="btn-stamp" id="activateBtn">AKTYWUJ BUSOLĘ</button>
+      </div>
+    </div>
+
+    <svg class="sep" viewBox="0 0 240 8" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="0" y1="4" x2="240" y2="4" stroke="#5a5538" stroke-width="1" />
+      <circle cx="120" cy="4" r="2" fill="#8a6a20" />
+    </svg>
+
+    <section class="parchment" aria-labelledby="orderHeading">
+      <h2 id="orderHeading">Rozkaz Marszu</h2>
+      <ol class="steps" id="stepsList">
+        <li class="step active" data-step="0">
+          <div class="step-num">Krok 1</div>
+          <div>Ustaw się twarzą na WSCHÓD.</div>
+          <div>Idź 30 kroków przed siebie.</div>
+        </li>
+        <li class="step" data-step="1">
+          <div class="step-num">Krok 2</div>
+          <div>Skręć na POŁUDNIE.</div>
+          <div>Idź 20 kroków, aż znajdziesz się przy [OPISZ ELEMENT TERENU].</div>
+        </li>
+        <li class="step" data-step="2">
+          <div class="step-num">Krok 3</div>
+          <div>Skręć na ZACHÓD.</div>
+          <div>Idź 15 kroków wzdłuż [OPISZ ELEMENT TERENU].</div>
+        </li>
+        <li class="step" data-step="3">
+          <div class="step-num">Krok 4</div>
+          <div>Zatrzymaj się. Odwróć się o 180°.</div>
+          <div>Zrób 5 kroków przed siebie.</div>
+        </li>
+        <li class="step" data-step="4">
+          <div class="step-num">Krok 5</div>
+          <div>Szukaj kapsułki w promieniu 5 kroków.</div>
+        </li>
+      </ol>
+    </section>
+
+    <div class="controls">
+      <button type="button" class="btn-nav" id="btnBack" disabled>← WRÓĆ</button>
+      <button type="button" class="btn-nav" id="btnNext">DALEJ →</button>
+    </div>
+
+    <p class="progress" id="progressText">Krok 1 / 5</p>
+  </div>
+
+  <div class="finish-overlay" id="finishOverlay" role="dialog" aria-modal="true" aria-label="Cel osiągnięty">
+    <h3>✦ DOTARŁAŚ ✦</h3>
+    <p class="mid">Szukaj kapsułki w promieniu pięciu kroków.</p>
+    <p class="small">Twoje słowo czeka.</p>
+  </div>
+
+<script>
+(function () {
+  var needle = document.getElementById('needle');
+  var headingReadout = document.getElementById('headingReadout');
+  var horizontalHint = document.getElementById('horizontalHint');
+  var activateWrap = document.getElementById('activateWrap');
+  var activateBtn = document.getElementById('activateBtn');
+  var steps = document.querySelectorAll('.step');
+  var btnBack = document.getElementById('btnBack');
+  var btnNext = document.getElementById('btnNext');
+  var progressText = document.getElementById('progressText');
+  var finishOverlay = document.getElementById('finishOverlay');
+
+  var currentStep = 0;
+  var totalSteps = steps.length;
+  var compassDataReceived = false;
+  var noDataTimer = null;
+  var listening = false;
+  var trustedAbsolute = false;
+
+  function padHeading(deg) {
+    var h = Math.round(((deg % 360) + 360) % 360);
+    var s = String(h);
+    return (s.length === 1 ? '00' : s.length === 2 ? '0' : '') + s + '°';
+  }
+
+  function applyNeedleRotation(headingDeg) {
+    if (headingDeg == null || isNaN(headingDeg)) return;
+    needle.style.transform = 'rotate(' + (-headingDeg) + 'deg)';
+    headingReadout.textContent = padHeading(headingDeg);
+    compassDataReceived = true;
+    horizontalHint.classList.remove('visible');
+  }
+
+  function headingFromAlpha(alpha) {
+    return (360 - alpha + 360) % 360;
+  }
+
+  function onOrientation(e) {
+    var h = null;
+    if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)) {
+      h = e.webkitCompassHeading;
+    } else if (e.type === 'deviceorientationabsolute' && e.alpha != null && !isNaN(e.alpha)) {
+      trustedAbsolute = true;
+      h = headingFromAlpha(e.alpha);
+    } else if (e.absolute === true && e.alpha != null && !isNaN(e.alpha)) {
+      trustedAbsolute = true;
+      h = headingFromAlpha(e.alpha);
+    } else if (trustedAbsolute && e.type === 'deviceorientation') {
+      return;
+    } else if (e.alpha != null && !isNaN(e.alpha)) {
+      h = headingFromAlpha(e.alpha);
+    }
+    if (h != null) applyNeedleRotation(h);
+  }
+
+  function clearNoDataTimer() {
+    if (noDataTimer) {
+      clearTimeout(noDataTimer);
+      noDataTimer = null;
+    }
+  }
+
+  function startNoDataTimer() {
+    clearNoDataTimer();
+    noDataTimer = setTimeout(function () {
+      if (!compassDataReceived) {
+        horizontalHint.classList.add('visible');
+      }
+    }, 3000);
+  }
+
+  function attachOrientationListeners() {
+    if (listening) return;
+    listening = true;
+    window.addEventListener('deviceorientationabsolute', onOrientation, false);
+    window.addEventListener('deviceorientation', onOrientation, false);
+    startNoDataTimer();
+  }
+
+  function updateStepsUI() {
+    for (var i = 0; i < steps.length; i++) {
+      if (i === currentStep) {
+        steps[i].classList.add('active');
+      } else {
+        steps[i].classList.remove('active');
+      }
+    }
+    btnBack.disabled = currentStep === 0;
+    progressText.textContent = 'Krok ' + (currentStep + 1) + ' / ' + totalSteps;
+  }
+
+  btnBack.addEventListener('click', function () {
+    if (currentStep > 0) {
+      currentStep--;
+      updateStepsUI();
+    }
+  });
+
+  btnNext.addEventListener('click', function () {
+    if (currentStep < totalSteps - 1) {
+      currentStep++;
+      updateStepsUI();
+    } else {
+      finishOverlay.classList.add('open');
+    }
+  });
+
+  finishOverlay.addEventListener('click', function () {
+    finishOverlay.classList.remove('open');
+  });
+
+  updateStepsUI();
+
+  function beginCompass() {
+    attachOrientationListeners();
+  }
+
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    activateWrap.classList.remove('hidden');
+    activateBtn.addEventListener('click', function () {
+      DeviceOrientationEvent.requestPermission()
+        .then(function (state) {
+          if (state === 'granted') {
+            activateWrap.classList.add('hidden');
+            beginCompass();
+          }
+        })
+        .catch(function () {});
+    });
+  } else {
+    beginCompass();
+  }
+})();
+</script>
+</body>
+</html>
