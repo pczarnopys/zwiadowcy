@@ -31,10 +31,18 @@
   }
 
   .guild-mark {
-    display: block;
-    height: 40px;
-    width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     margin: 0 auto 14px;
+  }
+  .guild-mark img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: none;
+    box-shadow: none;
   }
 
   .title-main {
@@ -391,17 +399,10 @@
 <body>
   <div class="page">
     <!-- 1: Gild mark 40px -->
-    <svg class="guild-mark" viewBox="0 0 120 40" aria-hidden="true" role="img">
-      <circle cx="60" cy="20" r="18" fill="none" stroke="#8a6a20" stroke-width="1.2" />
-      <defs>
-        <path id="arcTop" d="M 18 22 A 42 42 0 0 1 102 22" fill="none" />
-      </defs>
-      <text fill="#7a6a45" font-family="Cinzel, Georgia, serif" font-size="5.2" letter-spacing="0.12em">
-        <textPath href="#arcTop" startOffset="50%" text-anchor="middle">GILDIA ZWIADOWCÓW ARALUENU</textPath>
-      </text>
-      <path d="M60 8 L65 16 L58 15 L60 20 L62 15 L55 16 Z" fill="#8a6a20" />
-      <path d="M60 20 L68 28 L60 25 L52 28 Z" fill="#5a4a30" />
-    </svg>
+    <div class="guild-mark" aria-hidden="true">
+      <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
+      <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+    </div>
 
     <h1 class="title-main">Rozkaz Marszu</h1>
     <p class="title-sub">Gildia Zwiadowców Araluenu</p>

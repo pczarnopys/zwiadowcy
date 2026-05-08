@@ -101,9 +101,22 @@
       align-items: center;
       margin-bottom: 10px;
     }
-    .emblem-stack.small svg {
-      width: 100px;
-      height: 40px;
+    .emblem-pair {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .emblem-pair img {
+      width: 152px;
+      height: 152px;
+      object-fit: cover;
+      border: none;
+      box-shadow: none;
+    }
+    .emblem-stack.small .emblem-pair img {
+      width: 76px;
+      height: 76px;
     }
     .guild-line {
       font-family: Cinzel, Georgia, serif;
@@ -316,13 +329,10 @@
     <!-- PIN -->
     <div class="screen" id="screenPin">
       <div class="emblem-stack">
-        <svg width="200" height="80" viewBox="0 0 200 80" aria-hidden="true">
-          <circle cx="100" cy="38" r="32" fill="none" stroke="#4a3a10" stroke-width="2" />
-          <path d="M100 18 L108 36 L100 32 L92 36 Z" fill="#4a3a10" />
-          <path d="M100 32 L118 38 L100 44 L82 38 Z" fill="none" stroke="#4a3a10" stroke-width="1.5" />
-          <line x1="100" y1="44" x2="100" y2="56" stroke="#4a3a10" stroke-width="2" />
-          <polygon points="100,58 95,68 105,68" fill="#4a3a10" />
-        </svg>
+        <div class="emblem-pair" aria-hidden="true">
+          <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
+          <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+        </div>
         <div class="guild-line">✦ GILDIA ZWIADOWCÓW ARALUENU ✦</div>
       </div>
 
@@ -349,13 +359,10 @@
     <!-- Sukces -->
     <div class="screen" id="screenSuccess" hidden>
       <div class="emblem-stack small">
-        <svg width="100" height="40" viewBox="0 0 200 80" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
-          <circle cx="100" cy="38" r="32" fill="none" stroke="#4a3a10" stroke-width="2" />
-          <path d="M100 18 L108 36 L100 32 L92 36 Z" fill="#4a3a10" />
-          <path d="M100 32 L118 38 L100 44 L82 38 Z" fill="none" stroke="#4a3a10" stroke-width="1.5" />
-          <line x1="100" y1="44" x2="100" y2="56" stroke="#4a3a10" stroke-width="2" />
-          <polygon points="100,58 95,68 105,68" fill="#4a3a10" />
-        </svg>
+        <div class="emblem-pair" aria-hidden="true">
+          <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
+          <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+        </div>
         <div class="guild-line">✦ GILDIA ZWIADOWCÓW ARALUENU ✦</div>
       </div>
 

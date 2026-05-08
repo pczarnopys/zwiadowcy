@@ -105,12 +105,18 @@
   }
 
   .crest {
-    text-align: center;
-    font-size: 28px;
-    color: var(--ink);
-    letter-spacing: 0.4em;
-    opacity: 0.6;
-    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .crest img {
+    width: 124px;
+    height: 124px;
+    object-fit: cover;
+    border: none;
+    box-shadow: none;
   }
 
   h1.title {
@@ -444,7 +450,10 @@
 <body>
 
   <main class="parchment" id="parchment" role="main" aria-label="Karta finałowa">
-    <div class="crest" aria-hidden="true">&#x2731; &#x2731; &#x2731;</div>
+    <div class="crest" aria-hidden="true">
+      <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
+      <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+    </div>
 
     <h1 class="title">Gildia Zwiadowców Araluenu</h1>
     <p class="subtitle">Karta finałowa — koniec wyprawy</p>
