@@ -34,7 +34,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     margin: 0 auto 14px;
   }
   .guild-mark img {
@@ -400,8 +399,7 @@
   <div class="page">
     <!-- 1: Gild mark 40px -->
     <div class="guild-mark" aria-hidden="true">
-      <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
-      <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+      <img data-logo-img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
     </div>
 
     <h1 class="title-main">Rozkaz Marszu</h1>
@@ -495,6 +493,21 @@
     <p class="mid">Szukaj kapsułki w promieniu pięciu kroków.</p>
     <p class="small">Twoje słowo czeka.</p>
   </div>
+
+<script>
+(function () {
+  var chosen = (function () {
+    var v = new URLSearchParams(window.location.search).get("logo");
+    if (v === "kruk" || v === "sokol") return v;
+    return Math.random() < 0.5 ? "kruk" : "sokol";
+  })();
+  var logos = document.querySelectorAll("[data-logo-img]");
+  for (var i = 0; i < logos.length; i++) {
+    logos[i].src = chosen + ".jpg";
+    logos[i].alt = chosen === "kruk" ? "Kruk" : "Sokol";
+  }
+})();
+</script>
 
 <script>
 (function () {

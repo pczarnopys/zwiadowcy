@@ -105,7 +105,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
     }
     .emblem-pair img {
       width: 152px;
@@ -330,8 +329,7 @@
     <div class="screen" id="screenPin">
       <div class="emblem-stack">
         <div class="emblem-pair" aria-hidden="true">
-          <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
-          <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+          <img data-logo-img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
         </div>
         <div class="guild-line">✦ GILDIA ZWIADOWCÓW ARALUENU ✦</div>
       </div>
@@ -360,8 +358,7 @@
     <div class="screen" id="screenSuccess" hidden>
       <div class="emblem-stack small">
         <div class="emblem-pair" aria-hidden="true">
-          <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
-          <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+          <img data-logo-img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
         </div>
         <div class="guild-line">✦ GILDIA ZWIADOWCÓW ARALUENU ✦</div>
       </div>
@@ -385,6 +382,21 @@
       <button type="button" class="btn-reset" id="btnReset" hidden>RESETUJ</button>
     </div>
   </main>
+
+<script>
+(function () {
+  var chosen = (function () {
+    var v = new URLSearchParams(window.location.search).get("logo");
+    if (v === "kruk" || v === "sokol") return v;
+    return Math.random() < 0.5 ? "kruk" : "sokol";
+  })();
+  var logos = document.querySelectorAll("[data-logo-img]");
+  for (var i = 0; i < logos.length; i++) {
+    logos[i].src = chosen + ".jpg";
+    logos[i].alt = chosen === "kruk" ? "Kruk" : "Sokol";
+  }
+})();
+</script>
 
 <script>
 (function () {

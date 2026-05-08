@@ -29,7 +29,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
       margin-bottom: 4px;
     }
     .guild-mark img {
@@ -266,8 +265,7 @@
 
   <div class="header">
     <div class="guild-mark" aria-hidden="true">
-      <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
-      <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+      <img data-logo-img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
     </div>
     <div class="title">Gildia Zwiadowców Araluenu</div>
   </div>
@@ -331,6 +329,21 @@
   </div>
 
   <div class="footer-note" id="footer-note"></div>
+
+<script>
+(function () {
+  var chosen = (function () {
+    var v = new URLSearchParams(window.location.search).get("logo");
+    if (v === "kruk" || v === "sokol") return v;
+    return Math.random() < 0.5 ? "kruk" : "sokol";
+  })();
+  var logos = document.querySelectorAll("[data-logo-img]");
+  for (var i = 0; i < logos.length; i++) {
+    logos[i].src = chosen + ".jpg";
+    logos[i].alt = chosen === "kruk" ? "Kruk" : "Sokol";
+  }
+})();
+</script>
 
 <script>
 // ── Parse URL params ──────────────────────────────────────────────

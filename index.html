@@ -108,7 +108,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
     margin-bottom: 10px;
   }
   .crest img {
@@ -451,8 +450,7 @@
 
   <main class="parchment" id="parchment" role="main" aria-label="Karta finałowa">
     <div class="crest" aria-hidden="true">
-      <img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
-      <img src="sokol.jpg" alt="" loading="lazy" decoding="async" />
+      <img data-logo-img src="kruk.jpg" alt="" loading="lazy" decoding="async" />
     </div>
 
     <h1 class="title">Gildia Zwiadowców Araluenu</h1>
@@ -497,6 +495,20 @@
 
   <canvas id="confetti" aria-hidden="true"></canvas>
 
+<script>
+(() => {
+  const picked = (() => {
+    const v = new URLSearchParams(window.location.search).get("logo");
+    if (v === "kruk" || v === "sokol") return v;
+    return Math.random() < 0.5 ? "kruk" : "sokol";
+  })();
+  document.querySelectorAll("[data-logo-img]").forEach((img) => {
+    img.src = `${picked}.jpg`;
+    img.alt = picked === "kruk" ? "Kruk" : "Sokol";
+  });
+})();
+
+</script>
 <script>
 (() => {
   // ====== HASŁO GILDII (zmień w razie potrzeby) ======
