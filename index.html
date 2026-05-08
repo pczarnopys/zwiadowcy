@@ -156,28 +156,44 @@
   }
   .divider span { font-size: 18px; }
 
-  label.field-label {
+  .word-fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .word-fieldset legend.field-label {
     display: block;
     text-align: center;
     font-weight: 700;
     letter-spacing: 0.22em;
     font-size: clamp(12px, 2.6vw, 14px);
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    padding: 0;
     color: #2b1a08;
-  }
-
-  .input-wrap {
-    position: relative;
-    margin: 0 auto 24px;
-    max-width: 420px;
-  }
-
-  input.password {
     width: 100%;
-    padding: 14px 16px;
+  }
+
+  .word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .word-field {
+    text-align: left;
+  }
+
+  input.word-input {
+    width: 100%;
+    padding: 12px 14px;
     font-family: 'Cinzel', serif;
-    font-size: 16px;
-    letter-spacing: 0.18em;
+    font-size: 15px;
+    letter-spacing: 0.12em;
     text-align: center;
     text-transform: uppercase;
     color: #2b1a08;
@@ -190,17 +206,34 @@
       inset 0 -1px 0 rgba(255, 255, 255, 0.4);
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   }
-  input.password:focus {
+  input.word-input:focus {
     border-color: rgba(60, 40, 15, 0.9);
     background: rgba(255, 248, 220, 0.85);
     box-shadow:
       inset 0 2px 6px rgba(80, 50, 20, 0.35),
       0 0 0 3px rgba(212, 175, 55, 0.35);
   }
-  input.password::placeholder {
+  input.word-input::placeholder {
     color: rgba(90, 60, 25, 0.45);
     font-style: italic;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
+    text-transform: none;
+  }
+
+  .word-hint {
+    font-family: 'IM Fell English', Georgia, serif;
+    font-size: 13px;
+    margin-top: 6px;
+    min-height: 1.35em;
+    text-align: center;
+    letter-spacing: 0.03em;
+    color: transparent;
+  }
+  .word-hint.ok {
+    color: #1a5a28;
+  }
+  .word-hint.bad {
+    color: var(--blood);
   }
 
   button.seal-btn {
@@ -437,7 +470,7 @@
     }
     h1.title { letter-spacing: 0.12em; }
     button.seal-btn { padding: 12px 24px; }
-    input.password { font-size: 15px; }
+    input.word-input { font-size: 14px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -459,19 +492,10 @@
     <div class="divider" aria-hidden="true"><span>&#10086;</span></div>
 
     <form id="guildForm" autocomplete="off" novalidate>
-      <label for="password" class="field-label">Wprowadź hasło Gildii</label>
-      <div class="input-wrap">
-        <input
-          type="text"
-          id="password"
-          class="password"
-          name="password"
-          placeholder="...szepcie ostrożnie..."
-          aria-label="Hasło Gildii"
-          autocapitalize="characters"
-          spellcheck="false"
-        />
-      </div>
+      <fieldset class="word-fieldset">
+        <legend class="field-label">Wprowadź osiem słów Gildii</legend>
+        <div class="word-list" id="wordList"></div>
+      </fieldset>
 
       <button type="submit" class="seal-btn" id="submitBtn">Złóż raport</button>
 
@@ -511,22 +535,78 @@
 </script>
 <script>
 (() => {
-  // ====== HASŁO GILDII (zmień w razie potrzeby) ======
-  const GUILD_PASSWORD = "ARALUEN";
-  // ===================================================
+  const EXPECTED_WORDS = [
+    'ZWIADOWCA',
+    'ZAWSZE',
+    'SŁUŻY',
+    'WIERNIE',
+    'KRÓLOWI',
+    'ORAZ',
+    'KRÓLESTWU',
+    'ARALUENU',
+  ];
 
   const form     = document.getElementById('guildForm');
-  const input    = document.getElementById('password');
+  const wordList = document.getElementById('wordList');
   const feedback = document.getElementById('feedback');
   const card     = document.getElementById('parchment');
   const overlay  = document.getElementById('successOverlay');
   const canvas   = document.getElementById('confetti');
 
-  const normalize = (s) => (s || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toUpperCase();
+  /** Porównanie: bez wielkości liter, polskie znaki opcjonalne (Ł/ł → L) */
+  const normalizeWord = (s) => {
+    let t = String(s || '').trim();
+    t = t.replace(/\u0141/g, 'L').replace(/\u0142/g, 'l');
+    return t
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+  };
+
+  const inputs = [];
+  const hints = [];
+
+  EXPECTED_WORDS.forEach((_, i) => {
+    const row = document.createElement('div');
+    row.className = 'word-field';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'word-input';
+    inp.id = `word${i}`;
+    inp.name = `word${i}`;
+    inp.placeholder = `Słowo nr ${i + 1}`;
+    inp.setAttribute('aria-label', `Słowo nr ${i + 1}`);
+    inp.autocapitalize = 'characters';
+    inp.spellcheck = false;
+    const hint = document.createElement('p');
+    hint.className = 'word-hint';
+    hint.setAttribute('aria-live', 'polite');
+    row.appendChild(inp);
+    row.appendChild(hint);
+    wordList.appendChild(row);
+    inputs.push(inp);
+    hints.push(hint);
+
+    inp.addEventListener('input', () => updateHint(i));
+  });
+
+  function updateHint(i) {
+    const hint = hints[i];
+    const raw = inputs[i].value.trim();
+    if (!raw) {
+      hint.textContent = '';
+      hint.classList.remove('ok', 'bad');
+      return;
+    }
+    const ok = normalizeWord(inputs[i].value) === normalizeWord(EXPECTED_WORDS[i]);
+    hint.textContent = ok ? 'Słowo poprawne.' : 'Słowo niepoprawne.';
+    hint.classList.toggle('ok', ok);
+    hint.classList.toggle('bad', !ok);
+  }
+
+  function allWordsCorrect() {
+    return EXPECTED_WORDS.every((w, i) => normalizeWord(inputs[i].value) === normalizeWord(w));
+  }
 
   let unlocked = false;
 
@@ -534,8 +614,7 @@
     e.preventDefault();
     if (unlocked) return;
 
-    const value = normalize(input.value);
-    if (value === normalize(GUILD_PASSWORD)) {
+    if (allWordsCorrect()) {
       unlock();
     } else {
       reject();
@@ -555,7 +634,9 @@
       card.classList.remove('error-glow');
     }, 900);
 
-    input.select();
+    const badIdx = EXPECTED_WORDS.findIndex((w, i) => normalizeWord(inputs[i].value) !== normalizeWord(w));
+    if (badIdx >= 0) inputs[badIdx].focus();
+    else inputs[0].focus();
   }
 
   function unlock() {
