@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zwiadowcy — Mapa Stacji</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Georgia, serif; background: #0e1a0e; color: #c8a96e; }
+
+    #header {
+      padding: 12px 20px;
+      text-align: center;
+      background: #0a140a;
+      border-bottom: 1px solid #2a4a1a;
+    }
+    #header h1 {
+      font-size: 16px;
+      letter-spacing: 4px;
+      color: #a8d080;
+      font-family: Georgia, serif;
+    }
+    #header p {
+      font-size: 11px;
+      color: #5a7a4a;
+      letter-spacing: 2px;
+      margin-top: 2px;
+    }
+
+    #map { height: calc(100vh - 52px); width: 100%; }
+
+    /* Legend */
+    .legend {
+      background: rgba(10, 20, 10, 0.92);
+      border: 1px solid #2a4a1a;
+      padding: 10px 14px;
+      font-family: Georgia, serif;
+      font-size: 12px;
+      line-height: 1.9;
+      color: #a8b890;
+    }
+    .legend-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #6a9a4a;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #2a4a1a;
+      padding-bottom: 4px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .leg-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      display: inline-block; flex-shrink: 0;
+    }
+
+    /* Stałe etykiety numeryczne */
+    .station-num-label {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      font-family: Georgia, serif;
+      font-size: 13px;
+      font-weight: bold;
+      color: #a8d080;
+      text-shadow: 0 0 4px #0e1a0e, 0 0 8px #0e1a0e;
+    }
+    .station-num-label::before { display: none !important; }
+
+    /* Custom marker labels */
+    .marker-label {
+      background: rgba(10,20,10,0.88);
+      border: 1px solid #4a7a2a;
+      color: #a8d080;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: Georgia, serif;
+      white-space: nowrap;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>✦ GILDIA ZWIADOWCÓW — MAPA STACJI ✦</h1>
+  <p>Nadolice Wielkie · kliknij marker aby zobaczyć szczegóły</p>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Dane stacji ────────────────────────────────────────────────
+const stations = [
+  {
+    id: 'START',
+    name: '🚪 START — Brama Gildii',
+    lat: 51.08431856505931, lng: 17.25969255094096,
+    color: '#c8a96e',
+    team: 'obie',
+    time: '~10 min',
+    desc: 'Punkt startowy. Obie drużyny razem. Zagadka PIN z terenu.',
+    order: 'Obie drużyny — punkt 1'
+  },
+  {
+    id: 'S1',
+    name: '📜 S1 — Runy Zwiadowców',
+    lat: 51.08318345084335, lng: 17.25998182059031,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~15 min',
+    desc: 'Szyfr run Elder Futhark. Obie drużyny deszyfrują niezależnie.<br><b>Słowo [1]: ZWIADOWCA</b>',
+    order: 'Obie drużyny · stacja 1 / 8'
+  },
+  {
+    id: 'S2',
+    name: '🌿 S2 — Ślady Poprzednika',
+    lat: 51.08272976404062, lng: 17.260544746745712,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: 'Znaki zwiadowcy z patyków i kamieni. Kapsułka na końcu ścieżki.<br><b>Słowo [2]: GILDII</b>',
+    order: 'Obie drużyny · stacja 2 / 8'
+  },
+  {
+    id: 'S3',
+    name: '🧭 S3 — Orientacja w Terenie',
+    lat: 51.082079627225525, lng: 17.261098735568876,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: 'Marsz na azymut z busolą. QR → busola_s3.html.<br><b>Słowo [3]: ZAWSZE</b>',
+    order: 'Obie drużyny · stacja 3 / 8'
+  },
+  {
+    id: 'S4',
+    name: '🪵 S4 — Niewidzialny Ślad',
+    lat: 51.081961929980295, lng: 17.261081146639235,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: 'Tekst ujawniony przez pocieranie kredką.<br><b>Słowo [4]: KAŻDY</b>',
+    order: 'Obie drużyny · stacja 4 / 8'
+  },
+  {
+    id: 'S5',
+    name: '🎯 S5 — Próba Łuku',
+    lat: 51.08379642208695, lng: 17.264330476767913,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: 'Rzuty kamieniami do wiaderka. 3 trafienia z 5 kroków.<br><b>Słowo [5]: UKRYTY</b>',
+    order: 'Obie drużyny · stacja 5 / 8'
+  },
+  {
+    id: 'S6',
+    name: '🕸️ S6 — Strefa Czujek',
+    lat: 51.08311160420311, lng: 17.26406102603811,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: 'Pajęczyna ze sznurka i dzwoneczków. Słowo PODZIELONE między drużyny.<br><b>🔴 ODNAJ + 🔵 DZIE → ODNAJDZIE [6]</b>',
+    order: 'Obie drużyny · stacja 6 / 8 · SŁOWO PODZIELONE'
+  },
+  {
+    id: 'S7',
+    name: '🏞️ S7 — Głos Wąwozu',
+    lat: 51.08511497787064, lng: 17.262554726745293,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: 'Dwie połówki wiadomości po obu stronach wąwozu. Cisza Zwiadowcy. Słowo PODZIELONE.<br><b>⬅ ARALU + ENU ➡ → ARALUENU [7]</b>',
+    order: 'Obie drużyny · stacja 7 / 8 · SŁOWO PODZIELONE'
+  },
+  {
+    id: 'S8',
+    name: '🌸 S8 — Zielnik Zwiadowcy',
+    lat: 51.086140940049624, lng: 17.26073800000019,
+    color: '#a8d080',
+    team: 'obie',
+    time: '~12 min',
+    desc: '6 karteczek ukrytych wśród roślin. Złożone wskazują skrytkę kapsułki.<br><b>Słowo [8]: SKARB</b>',
+    order: 'Obie drużyny · stacja 8 / 8'
+  },
+  {
+    id: 'FINAL',
+    name: '⚔️ FINAŁ — Złożenie Przysięgi',
+    lat: 51.08431856505931, lng: 17.25969255094096,
+    color: '#d4a030',
+    team: 'obie',
+    time: '~15 min',
+    desc: 'Obie drużyny składają hasło. Skrytka ze skarbem.',
+    order: 'Obie drużyny — punkt końcowy'
+  }
+];
+
+// ── Mapa ──────────────────────────────────────────────────────
+const map = L.map('map').setView([51.0832, 17.262], 15);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 19
+}).addTo(map);
+
+// ── Funkcja tworzenia markera ─────────────────────────────────
+function makeIcon(color, label) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      background: ${color};
+      color: #0a140a;
+      border: 2px solid rgba(0,0,0,0.4);
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; font-family: Georgia, serif;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    ">
+      <span style="transform: rotate(45deg)">${label}</span>
+    </div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -34]
+  });
+}
+
+// ── Etykiety stacji ───────────────────────────────────────────
+const labelMap = {
+  'START': '▶', 'S1': '1', 'S2': '2', 'S3': '3', 'S4': '4',
+  'S5': '5', 'S6': '6', 'S7': '7', 'S8': '8', 'FINAL': '✦'
+};
+
+// ── Dodaj markery ─────────────────────────────────────────────
+stations.forEach(st => {
+  const icon = makeIcon(st.color, labelMap[st.id] || '?');
+  const marker = L.marker([st.lat, st.lng], { icon }).addTo(map);
+
+  // Etykieta numeryczna na mapie (stałe)
+  if (labelMap[st.id] && st.id !== 'START' && st.id !== 'FINAL') {
+    L.tooltip({
+      permanent: true,
+      direction: 'top',
+      offset: [0, -36],
+      className: 'station-num-label'
+    })
+    .setContent(`<b>${labelMap[st.id]}</b>`)
+    .setLatLng([st.lat, st.lng])
+    .addTo(map);
+  }
+
+  marker.bindPopup(`
+    <div style="font-family:Georgia,serif; min-width:200px; color:#1a0e00">
+      <div style="font-size:14px; font-weight:bold; margin-bottom:6px; color:#2a4a0a">
+        ${st.name}
+      </div>
+      <div style="font-size:11px; color:#5a4a20; margin-bottom:4px; letter-spacing:1px">
+        ${st.order}
+      </div>
+      <div style="font-size:12px; margin-bottom:6px; border-top:1px solid #d0c090; padding-top:6px">
+        ${st.desc}
+      </div>
+      <div style="font-size:11px; color:#7a6a30">
+        ⏱ ${st.time} &nbsp;|&nbsp;
+        <a href="https://maps.google.com/?q=${st.lat},${st.lng}" target="_blank"
+           style="color:#4a8a20">Nawiguj ↗</a>
+      </div>
+    </div>
+  `, { maxWidth: 280 });
+});
+
+// ── Trasa (jeden szlak: kolejność numeryczna) ─────────────────
+const trasa = ['START','S1','S2','S3','S4','S5','S6','S7','S8','FINAL'];
+const linia = trasa.map(id => stations.find(s => s.id === id)).filter(Boolean).map(s => [s.lat, s.lng]);
+
+L.polyline(linia, {
+  color: '#8aab6a', weight: 3, opacity: 0.8,
+  dashArray: '10, 6'
+}).addTo(map).bindTooltip('Szlak stacji 1–8', { permanent: false });
+
+// ── Legenda ───────────────────────────────────────────────────
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = () => {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <div class="legend-title">LEGENDA</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#c8a96e"></span> START ▶ / FINAŁ ✦</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#a8d080"></span> Stacje 1–8 (wszystkie wspólne)</div>
+    <div class="legend-item" style="margin-top:6px; border-top:1px solid #2a4a1a; padding-top:6px; font-size:11px; color:#6a9a4a">
+      Sokół: 1→2→3→4→5→6→7→8<br>
+      Kruk:  4→3→2→1→8→7→6→5
+    </div>
+  `;
+  return div;
+};
+legend.addTo(map);
+</script>
+</body>
+</html>
